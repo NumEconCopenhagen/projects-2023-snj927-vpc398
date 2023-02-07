@@ -1,8 +1,9 @@
 # \[Group name\]
-First commit
+
 **Group members:**
 - Ammar Baharani (vpc398)
 - Poul Petri (snj927)
+- Test
 
 This repository contains  
 1. Inaugural project. 
