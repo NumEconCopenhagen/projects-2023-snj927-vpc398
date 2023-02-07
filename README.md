@@ -1,9 +1,8 @@
 # \[Group name\]
 
 **Group members:**
-- A
-- B
-- C
+- Ammar Baharani (vpc398)
+- Poul Petri (snj927)
 
 This repository contains  
 1. Inaugural project. 
