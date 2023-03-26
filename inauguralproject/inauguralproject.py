@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class HouseholdSpecializationModelClass:
-
     def __init__(self):
         """ setup model """
 
@@ -54,12 +53,12 @@ class HouseholdSpecializationModelClass:
 
 
         #b. Return
-        if par.sigma == 0:
-            H = optimize.minimize(HF,HM)
-        elif par.sigma == 1:
+        if par.sigma == 0.: #minimum
+            H = np.min(HM,HF)
+        elif par.sigma == 1.: #Cobb-Douglas
             H = HM**(1-par.alpha)*HF**par.alpha
-        else:
-            H = ((1-par.alpha)*HM**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
+        else: #CES
+            H = ((1-par.alpha)*HM**((par.sigma-1)/(par.sigma)) + par.alpha*HF**((par.sigma-1)/(par.sigma)))**(par.sigma/(par.sigma-1))    
        
 
         # c. total consumption utility
