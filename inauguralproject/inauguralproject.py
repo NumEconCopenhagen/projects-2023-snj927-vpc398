@@ -1,4 +1,3 @@
-
 from types import SimpleNamespace
 
 import numpy as np
@@ -17,18 +16,18 @@ class HouseholdSpecializationModelClass:
         sol = self.sol = SimpleNamespace()
 
         # b. preferences
-        par.rho = 2.0 #tjek
-        par.nu = 0.001 #tjek
-        par.epsilon = 1.0 #tjek
-        par.omega = 0.5 #tjek
+        par.rho = 2.0
+        par.nu = 0.001
+        par.epsilon = 1.0
+        par.omega = 0.5 
 
         # c. household production
-        par.alpha = 0.5 #tjek
-        par.sigma = 1.0 #tjek
+        par.alpha = 0.5
+        par.sigma = 1.0
 
         # d. wages
-        par.wM = 1.0 #tjek
-        par.wF = 1.0 #tjek
+        par.wM = 1.0
+        par.wF = 1.0
         par.wF_vec = np.linspace(0.8,1.2,5)
 
         # e. targets
@@ -53,7 +52,8 @@ class HouseholdSpecializationModelClass:
         # a. consumption of market goods
         C = par.wM*LM + par.wF*LF
 
-        # b. home production
+
+        #b. Return
         if par.sigma == 0:
             H = optimize.minimize(HF,HM)
         elif par.sigma == 1:
@@ -61,8 +61,9 @@ class HouseholdSpecializationModelClass:
         else:
             H = ((1-par.alpha)*HM**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
        
+
         # c. total consumption utility
-        Q = (C**par.omega)*(H**(1-par.omega))
+        Q = C**par.omega*H**(1-par.omega)
         utility = np.fmax(Q,1e-8)**(1-par.rho)/(1-par.rho)
 
         # d. disutlity of work
@@ -111,15 +112,46 @@ class HouseholdSpecializationModelClass:
 
         return opt
 
-    def solve(self,do_print=False):
+    def solve_continous(self,do_print=False): #exc. 3
         """ solve model continously """
 
-        pass    
+        par = self.par
+        sol = self.sol
+        opt = SimpleNamespace()
 
-    def solve_wF_vec(self,discrete=False):
+
+        # Objective function
+        obj = lambda x: -self.calc_utility(x[0],x[1],x[2],x[3])
+
+        # Constraints and bounds
+        constraint_male = lambda x: 24 - x[0] - x[1]
+        constraint_female = lambda x: 24 - x[2] - x[3]
+
+        constraints = [{'type': 'ineq', 'fun': constraint_male},{'type': 'ineq', 'fun': constraint_female}]
+
+        intial_guess = [12, 12, 12, 12] # Initial guess: both male and female member use equal amount of time on labor and home production
+
+        bounds = ((0,24),(0,24),(0,24),(0,24))
+
+        result = optimize.minimize(obj, intial_guess, constraints=constraints, method = "SLSQP", bounds=bounds)
+        
+        # Setting the solution equal to the solution namespace:
+        opt.HM = sol.HM = result.x[1]
+        opt.LM = sol.HF = result.x[0] 
+        opt.LF = sol.LF = result.x[2]
+        opt.HF = sol.HF = result.x[3]
+        
+    # Printing result
+        if do_print:
+            for k,v in opt.__dict__.items():
+                print(f'{k} = {v:6.4f}')  
+        return opt
+
+    def solve_wF_vec(self,discrete=False): #exc. 2
         """ solve model for vector of female wages """
 
         pass
+
 
     def run_regression(self):
         """ run regression """
@@ -132,7 +164,6 @@ class HouseholdSpecializationModelClass:
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
     
-    def estimate(self,alpha=None,sigma=None):
+    def estimate(self, alpha=None, sigma=None):
         """ estimate alpha and sigma """
-
-        pass    
+        pass
