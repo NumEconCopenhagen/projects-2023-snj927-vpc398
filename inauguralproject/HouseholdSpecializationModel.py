@@ -223,3 +223,26 @@ class HouseholdSpecializationModelClass:
         )
 
         return utility - disutility
+    
+        def estimate_3(self,kappa_vals=None,sigma_vals=None,do_print=False):  #Question 5
+        """ estimate kappa and sigma """
+        ## Needs to estimate them such that they yield the estimated results
+
+        par = self.par
+        sol = self.sol 
+
+          #Accounting for None values of Sigma and Alpha
+        sigma_vals = par.sigma if sigma_vals is None else sigma_vals
+        kappa_vals = par.kappa if kappa_vals is None else kappa_vals
+
+        #Initial parameters
+        b0 = par.beta0_target
+        b1 = par.beta1_target
+            
+        #Solve optimal choice set, account for different wF
+        self.solve_wF_vec(discrete=False)
+            
+        #Run regression for beta_0 and beta_1
+        self.run_regression()
+            
+        return (b0-sol.beta0)**2 + (b1-sol.beta1)**2
